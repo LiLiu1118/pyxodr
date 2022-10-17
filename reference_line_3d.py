@@ -198,6 +198,6 @@ if __name__ == "__main__":
     # plt.text(-5, 60, 'Parabola $Y = x^2$', fontsize=22)
     plt.xlabel("X", fontsize=15)
     plt.ylabel("Y", fontsize=15)
-    plt.show()
+
 
 
