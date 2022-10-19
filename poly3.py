@@ -15,5 +15,3 @@ class Poly3:
         self.bV = bV
         self.cV = cV
         self.dV = dV
-
-
