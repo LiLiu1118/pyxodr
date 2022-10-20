@@ -1,8 +1,5 @@
-import numpy as np
 import xml.etree.ElementTree as ET
-
-
-from road import Road
+from roadParser import RoadParser
 
 class XODRParser:
 
@@ -20,8 +17,8 @@ class XODRParser:
             for road in roads:
                 id_temp = road.get('id')
                 if (id_temp == id):
-                    road_founded = Road(road)
+                    road_founded = RoadParser(road)
                     self.roads[id] = road_founded
-                    return road_founded
+                    return road_founded # return a parser of road
 
         return None
