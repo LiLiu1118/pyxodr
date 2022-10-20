@@ -9,4 +9,3 @@ class Geometry:
         self.length = length
         self.type = None
 
-    def set_params_poly3(self):
