@@ -1,12 +1,10 @@
 import numpy as np
+from geometry import Geometry
 
-class Poly3:
+class Poly3(Geometry):
     def __init__(self, s, x, y, hdg, length, aU, bU, cU, dU, aV, bV, cV, dV):
-        self.s = s
-        self.x = x
-        self.y = y
-        self.hdg = hdg
-        self.length = length
+
+        super().__init__(s, x, y, hdg, length)
         self.aU = aU
         self.bU = bU
         self.cU = cU

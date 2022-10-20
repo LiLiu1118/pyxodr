@@ -35,7 +35,7 @@ class Road:
             item.append(float(x))
             item.append(float(y))
             item.append(float(hdg))
-            item.append(float(length))
+            print(geometry[0].tag == "paramPoly3")
             poly_params = geometry.findall('.//paramPoly3')
             for poly_param in poly_params:
                 aU = poly_param.get('aU')
