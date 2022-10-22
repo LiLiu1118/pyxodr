@@ -8,3 +8,4 @@ class Road:
         self.rule = None
         self.planView = None
         self.elevationProfile = None
+        self.lanes = None
