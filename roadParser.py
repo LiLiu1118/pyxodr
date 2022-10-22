@@ -5,7 +5,7 @@ from plot_adjustment import axisEqual3D
 from planView import PlanView, Geometry, ParamPoly3
 from elevationProfile import Elevation, ElevationProfile
 from road import Road
-from lanes import Lanes, Lane, LaneOffset, LaneSection
+from lanes import *
 import math
 
 class RoadParser:
@@ -91,6 +91,21 @@ class RoadParser:
         for laneSection_node in laneSection_nodes:
             s = laneSection_node.get('s')
             lane_section = LaneSection(s)
+            lanes_all_num_node = laneSection_node.findall('.//lane')
+            for lane_all_num_node in lanes_all_num_node:
+                if lane_all_num_node.get("id") == '-1':
+                    lane_minus1 = Lane_minus1()
+                    width_items_node = lane_all_num_node.findall('.//width')
+                    for width_item_node in width_items_node:
+                        sOffset = width_item_node.get('sOffset')
+                        a = width_item_node.get('a')
+                        b = width_item_node.get('b')
+                        c = width_item_node.get('c')
+                        d = width_item_node.get('d')
+                        width_item = Width_item(sOffset, a, b, c, d)
+                        lane_minus1.width_items.append(width_item)
+                    lane_section.lane_minus1 = lane_minus1
+
             lanes.laneSections.append(lane_section)
         self.road.lanes = lanes
         self.already_gathered = True

@@ -6,5 +6,5 @@ parser1 = XODRParser(path)
 road_parser = parser1.find_road("1002000")
 
 road_parser.setup_road_information()
-road_parser.plot_ref_line()
+
 

@@ -23,3 +23,16 @@ class Lanes:
     def __init__(self):
         self.laneOffsets = []
         self.laneSections = []
+
+class Lane_minus1:
+    def __init__(self):
+        self.id = -1
+        self.width_items = []
+
+class Width_item:
+    def __init__(self, sOffset, a, b, c, d):
+        self.sOffset = sOffset
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
