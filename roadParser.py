@@ -7,6 +7,8 @@ from elevationProfile import Elevation, ElevationProfile
 from road import Road
 from lanes import *
 import math
+import time
+from get_parameters import *
 
 class RoadParser:
 
@@ -20,11 +22,13 @@ class RoadParser:
         self.s_coordinates = np.linspace(0, float(self.road_length), num=int(float(self.road_length) * 100), endpoint=True,
                                          retstep=False,
                                          dtype=None, axis=0)
-        self.center_line_coordinates = None
+        self.ref_line_coordinates = []
+        self.center_line_coordinates = []
+        self.minus1_coordiantes = []
 
 
 
-    def setup_road_information(self):
+    def parse_geometry_parameters(self):
         if (self.already_gathered == True):
             return
         if (self.road_node == None):
@@ -112,231 +116,139 @@ class RoadParser:
         self.already_gathered = True
 
 
-
     def get_road_length(self):
 
         return self.road_node.get("length")
 
-    def get_3d_coordinate(self, s_coordinate):
 
-        s_xy = x = y = hdg = length = model = None
-        s_z = a = b = c = d = None
-        s_laneOffset = a_laneOffset = lanesections = b_laneOffset = c_laneOffset = d_laneOffset = None
-        geometry_index = 0
+    def calculate_3d_coordinate(self):
+        for s_coordinate in self.s_coordinates:
+            s_xy = x = y = hdg = length = model = None
+            s_z = a = b = c = d = None
+            s_laneOffset = a_laneOffset = lanesections = b_laneOffset = c_laneOffset = d_laneOffset = None
+            geometry_index = 0
+            lane_section_s = s_Offset_1 = s_Offset = width_a = width_b = width_c = width_d = None
 
-        lane_section_s = s_Offset_1 = s_Offset = width_a = width_b = width_c = width_d = None
-        for i in range(len(self.road.lanes.laneSections) - 1):
-            if (s_coordinate >= float(self.road.lanes.laneSections[i].s) and s_coordinate < float(self.road.lanes.laneSections[i + 1].s)):
-                if (len(self.road.lanes.laneSections[i].lane_minus1.width_items) == 1):
-                    s_coordinate = float(self.road.lanes.laneSections[i].s)
-                    s_Offset = s_coordinate - float(self.road.lanes.laneSections[i].s)
-                    s_Offset_1 = s_coordinate - float(self.road.lanes.laneSections[i].s) - float(self.road.lanes.laneSections[i].lane_minus1.width_items[0].sOffset)
-                    print("s_coordinate", s_coordinate)
-                    print("lanesection.s", lanesections)
-                    print("s_Offset", s_Offset)
-                    width_a = float(self.road.lanes.laneSections[i].lane_minus1.width_items[0].a)
-                    width_b = float(self.road.lanes.laneSections[i].lane_minus1.width_items[0].b)
-                    width_c = float(self.road.lanes.laneSections[i].lane_minus1.width_items[0].c)
-                    width_d = float(self.road.lanes.laneSections[i].lane_minus1.width_items[0].d)
+            s_Offset_1, width_a, width_b, width_c, width_d = get_width_parameters(self.road, s_coordinate)
+
+            for i in range(len(self.road.lanes.laneOffsets) - 1):
+                if (s_coordinate >= float(self.road.lanes.laneOffsets[i].s) and s_coordinate < float(self.road.lanes.laneOffsets[i+1].s)):
+                    s_laneOffset = float(self.road.lanes.laneOffsets[i].s)
+                    a_laneOffset = float(self.road.lanes.laneOffsets[i].a)
+                    b_laneOffset = float(self.road.lanes.laneOffsets[i].b)
+                    c_laneOffset = float(self.road.lanes.laneOffsets[i].c)
+                    d_laneOffset = float(self.road.lanes.laneOffsets[i].d)
                     break
-                for j in range(len(self.road.lanes.laneSections[i].lane_minus1.width_items) - 1):
-                    if (s_coordinate >= float(self.road.lanes.laneSections[i].s) + float(self.road.lanes.laneSections[i].lane_minus1.width_items[j].sOffset)
-                            and s_coordinate < float(self.road.lanes.laneSections[i].s) + float(self.road.lanes.laneSections[i].lane_minus1.width_items[j+1].sOffset)):
-                        lanesections = float(self.road.lanes.laneSections[i].s)
-
-                        s_Offset = s_coordinate - float(self.road.lanes.laneSections[i].s)
-                        s_Offset_1 = s_coordinate - float(self.road.lanes.laneSections[i].s) - float(self.road.lanes.laneSections[i].lane_minus1.width_items[j].sOffset)
-                        print("s_coordinate", s_coordinate)
-                        print("lanesection.s", lanesections)
-                        print("s_Offset", s_Offset)
-                        width_a = float(self.road.lanes.laneSections[i].lane_minus1.width_items[j].a)
-                        width_b = float(self.road.lanes.laneSections[i].lane_minus1.width_items[j].b)
-                        width_c = float(self.road.lanes.laneSections[i].lane_minus1.width_items[j].c)
-                        width_d = float(self.road.lanes.laneSections[i].lane_minus1.width_items[j].d)
-                        break
-
-                    if (j == len(self.road.lanes.laneSections[i].lane_minus1.width_items) - 2):
-                        s_Offset = s_coordinate - float(self.road.lanes.laneSections[i].s)
-                        s_Offset_1 = s_coordinate - float(self.road.lanes.laneSections[i].s) - float(self.road.lanes.laneSections[i].lane_minus1.width_items[-1].sOffset)
-                        lanesections = float(self.road.lanes.laneSections[i].s)
-                        print("s_coordinate", s_coordinate)
-                        print("lanesection.s", lanesections)
-                        print("s_Offset", s_Offset)
-                        width_a = float(self.road.lanes.laneSections[i].lane_minus1.width_items[-1].a)
-                        width_b = float(self.road.lanes.laneSections[i].lane_minus1.width_items[-1].b)
-                        width_c = float(self.road.lanes.laneSections[i].lane_minus1.width_items[-1].c)
-                        width_d = float(self.road.lanes.laneSections[i].lane_minus1.width_items[-1].d)
-                        break
-                break
-            if (i == len(self.road.lanes.laneSections) - 2):
-                if (len(self.road.lanes.laneSections[-1].lane_minus1.width_items) == 1):
-                    # lane_setion_s = float(self.road.lanes.laneSections[i].s)
-                    s_Offset = s_coordinate - float(self.road.lanes.laneSections[-1].s)
-                    s_Offset_1 = s_coordinate - float(self.road.lanes.laneSections[-1].s) - float(self.road.lanes.laneSections[-1].lane_minus1.width_items[0].sOffset)
-                    lanesections = float(self.road.lanes.laneSections[i].s)
-                    print("s_coordinate", s_coordinate)
-                    print("lanesection.s", lanesections)
-                    print("s_Offset", s_Offset)
-                    width_a = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[0].a)
-                    width_b = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[0].b)
-                    width_c = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[0].c)
-                    width_d = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[0].d)
+                if (i == len(self.road.lanes.laneOffsets) - 2):
+                    s_laneOffset = float(self.road.lanes.laneOffsets[-1].s)
+                    a_laneOffset = float(self.road.lanes.laneOffsets[-1].a)
+                    b_laneOffset = float(self.road.lanes.laneOffsets[-1].b)
+                    c_laneOffset = float(self.road.lanes.laneOffsets[-1].c)
+                    d_laneOffset = float(self.road.lanes.laneOffsets[-1].d)
                     break
-                for j in range(len(self.road.lanes.laneSections[-1].lane_minus1.width_items) - 1):
-                    if (s_coordinate >= float(self.road.lanes.laneSections[-1].s) + float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j].sOffset)
-                            and s_coordinate < float(self.road.lanes.laneSections[-1].s) + float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j+1].sOffset)):
-                        # lane_setion_s = float(self.road.lanes.laneSections[i].s)
-                        s_Offset = s_coordinate - float(self.road.lanes.laneSections[-1].s)
-                        s_Offset_1 = s_coordinate - float(self.road.lanes.laneSections[-1].s) - float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j].sOffset)
-                        lanesections = float(self.road.lanes.laneSections[i].s)
-                        print("s_coordinate", s_coordinate)
-                        print("lanesection.s", lanesections)
-                        print("s_Offset", s_Offset)
-                        width_a = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j].a)
-                        width_b = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j].b)
-                        width_c = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j].c)
-                        width_d = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[j].d)
-                        break
-                    if (j == len(self.road.lanes.laneSections[-1].lane_minus1.width_items) - 2):
-                        s_Offset = s_coordinate - float(self.road.lanes.laneSections[-1].s)
-                        s_Offset_1 = s_coordinate - float(self.road.lanes.laneSections[-1].s) - float(self.road.lanes.laneSections[-1].lane_minus1.width_items[-1].sOffset)
-                        lanesections = float(self.road.lanes.laneSections[i].s)
-                        print("s_coordinate", s_coordinate)
-                        print("lanesection.s", lanesections)
-                        print("s_Offset", s_Offset)
 
-                        width_a = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[-1].a)
-                        width_b = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[-1].b)
-                        width_c = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[-1].c)
-                        width_d = float(self.road.lanes.laneSections[-1].lane_minus1.width_items[-1].d)
-                        break
-                break
+            for i in range(len(self.road.planView.geometrys) - 1):
+                if (s_coordinate >= float(self.road.planView.geometrys[i].s) and s_coordinate < float(self.road.planView.geometrys[i+1].s)):
+                    s_xy = float(self.road.planView.geometrys[i].s)
+                    x = float(self.road.planView.geometrys[i].x)
+                    y = float(self.road.planView.geometrys[i].y)
+                    hdg = float(self.road.planView.geometrys[i].hdg)
+                    length = float(self.road.planView.geometrys[i].length)
+                    geometry_index = i
+                    break
+                if (i == len(self.road.planView.geometrys) - 2):
+                    s_xy = float(self.road.planView.geometrys[-1].s)
+                    x = float(self.road.planView.geometrys[-1].x)
+                    y = float(self.road.planView.geometrys[-1].y)
+                    hdg = float(self.road.planView.geometrys[-1].hdg)
+                    length = float(self.road.planView.geometrys[-1].length)
+                    geometry_index = -1
+                    break
 
-
-        for i in range(len(self.road.lanes.laneOffsets) - 1):
-            if (s_coordinate >= float(self.road.lanes.laneOffsets[i].s) and s_coordinate < float(self.road.lanes.laneOffsets[i+1].s)):
-                s_laneOffset = float(self.road.lanes.laneOffsets[i].s)
-                a_laneOffset = float(self.road.lanes.laneOffsets[i].a)
-                b_laneOffset = float(self.road.lanes.laneOffsets[i].b)
-                c_laneOffset = float(self.road.lanes.laneOffsets[i].c)
-                d_laneOffset = float(self.road.lanes.laneOffsets[i].d)
-                break
-            if (i == len(self.road.lanes.laneOffsets) - 2):
-                s_laneOffset = float(self.road.lanes.laneOffsets[-1].s)
-                a_laneOffset = float(self.road.lanes.laneOffsets[-1].a)
-                b_laneOffset = float(self.road.lanes.laneOffsets[-1].b)
-                c_laneOffset = float(self.road.lanes.laneOffsets[-1].c)
-                d_laneOffset = float(self.road.lanes.laneOffsets[-1].d)
-                break
-
-        for i in range(len(self.road.planView.geometrys) - 1):
-            if (s_coordinate >= float(self.road.planView.geometrys[i].s) and s_coordinate < float(self.road.planView.geometrys[i+1].s)):
-                s_xy = float(self.road.planView.geometrys[i].s)
-                x = float(self.road.planView.geometrys[i].x)
-                y = float(self.road.planView.geometrys[i].y)
-                hdg = float(self.road.planView.geometrys[i].hdg)
-                length = float(self.road.planView.geometrys[i].length)
-                geometry_index = i
-                break
-            if (i == len(self.road.planView.geometrys) - 2):
-                s_xy = float(self.road.planView.geometrys[-1].s)
-                x = float(self.road.planView.geometrys[-1].x)
-                y = float(self.road.planView.geometrys[-1].y)
-                hdg = float(self.road.planView.geometrys[-1].hdg)
-                length = float(self.road.planView.geometrys[-1].length)
-                geometry_index = -1
-                break
-
-        for i in range(len(self.road.elevationProfile.elevations) - 1):
-            if (s_coordinate >= float(self.road.elevationProfile.elevations[i].s) and s_coordinate < float(self.road.elevationProfile.elevations[i + 1].s)):
-                s_z = float(self.road.elevationProfile.elevations[i].s)
-                a = float(self.road.elevationProfile.elevations[i].a)
-                b = float(self.road.elevationProfile.elevations[i].b)
-                c = float(self.road.elevationProfile.elevations[i].c)
-                d = float(self.road.elevationProfile.elevations[i].d)
-                break
-            if (i == len(self.road.elevationProfile.elevations) - 2):
-                s_z = float(self.road.elevationProfile.elevations[-1].s)
-                a = float(self.road.elevationProfile.elevations[-1].a)
-                b = float(self.road.elevationProfile.elevations[-1].b)
-                c = float(self.road.elevationProfile.elevations[-1].c)
-                d = float(self.road.elevationProfile.elevations[-1].d)
-                break
-        if (self.geometry_nodes[geometry_index][0].tag == "paramPoly3"):
-            gradient_u = float(self.road.planView.geometrys[geometry_index].model.bU) + 2*float(self.road.planView.geometrys[geometry_index].model.cU) * (s_coordinate - s_xy) + 3*float(self.road.planView.geometrys[geometry_index].model.dU) * (s_coordinate - s_xy) ** 2
-            gradient_v = float(self.road.planView.geometrys[geometry_index].model.bV) + 2*float(self.road.planView.geometrys[geometry_index].model.cV) * (s_coordinate - s_xy) + 3*float(self.road.planView.geometrys[geometry_index].model.dV) * (s_coordinate - s_xy) ** 2
-
-            hdg_this_s = math.atan2(gradient_v, gradient_u) #angle in radian
-            # math.tan(3.1415926 / 2)
-            u = float(self.road.planView.geometrys[geometry_index].model.aU) + float(self.road.planView.geometrys[geometry_index].model.bU) * (s_coordinate - s_xy) + float(self.road.planView.geometrys[geometry_index].model.cU) * (s_coordinate - s_xy) ** 2 + float(self.road.planView.geometrys[geometry_index].model.dU) * (s_coordinate - s_xy) ** 3
-            v = float(self.road.planView.geometrys[geometry_index].model.aV) + float(self.road.planView.geometrys[geometry_index].model.bV) * (s_coordinate - s_xy) + float(self.road.planView.geometrys[geometry_index].model.cV) * (s_coordinate - s_xy) ** 2 + float(self.road.planView.geometrys[geometry_index].model.dV) * (s_coordinate - s_xy) ** 3
-            offset = float(a_laneOffset) + float(b_laneOffset) * (s_coordinate - s_laneOffset) + float(c_laneOffset) * (s_coordinate - s_laneOffset)**2 + float(d_laneOffset) * (s_coordinate - s_laneOffset)**3
-            u_center = u - offset * math.sin(hdg_this_s)
-            v_center = v + offset * math.cos(hdg_this_s)
-            width = float(width_a) + float(width_b) * s_Offset_1 + float(width_c) * s_Offset_1**2 + float(width_d) * s_Offset_1**3
-            u_minus1 = u_center + (offset+width) * math.sin(hdg_this_s)
-            v_minus1 = v_center - (offset+width) * math.cos(hdg_this_s)
-
-            coordinates_before_rotate = np.vstack((u, v)).T
-            middle_coordinates_before_rotate = np.vstack((u_center, v_center)).T
-            minus1_coordinates_before_rotate = np.vstack((u_minus1, v_minus1)).T
-
-            coordinates_after_rotate = rotate(coordinates_before_rotate, hdg, rotation_around=[
-                float(self.road.planView.geometrys[geometry_index].model.aU),
-                float(self.road.planView.geometrys[geometry_index].model.aV)])
-            middle_coordinates_after_rotate = rotate(middle_coordinates_before_rotate, hdg, rotation_around=[
-                float(self.road.planView.geometrys[geometry_index].model.aU),
-                float(self.road.planView.geometrys[geometry_index].model.aV)])
-            minus1_coordinates_after_rotate = rotate(minus1_coordinates_before_rotate, hdg, rotation_around=[
-                float(self.road.planView.geometrys[geometry_index].model.aU),
-                float(self.road.planView.geometrys[geometry_index].model.aV)])
-
-            coordinates_after_rotate_and_translation = coordinates_after_rotate + np.array([x, y])
-            middle_coordinates_after_rotate_and_translation = middle_coordinates_after_rotate + np.array([x, y])
-            minus1_coordinates_after_rotate_and_translation = minus1_coordinates_after_rotate + np.array([x, y])
-
-            x_coor = coordinates_after_rotate_and_translation[0]
-            y_coor = coordinates_after_rotate_and_translation[1]
-
-            middle_x_coor = middle_coordinates_after_rotate_and_translation[0]
-            middle_y_coor = middle_coordinates_after_rotate_and_translation[1]
-
-            minus1_x_coor = minus1_coordinates_after_rotate_and_translation[0]
-            minus1_y_coor = minus1_coordinates_after_rotate_and_translation[1]
-
-        z_coor = a + b * (s_coordinate - s_z) + c * (s_coordinate - s_z) ** 2 + d * (s_coordinate - s_z) ** 3
-
-        return x_coor, y_coor, z_coor, middle_x_coor, middle_y_coor, minus1_x_coor, minus1_y_coor
+            for i in range(len(self.road.elevationProfile.elevations) - 1):
+                if (s_coordinate >= float(self.road.elevationProfile.elevations[i].s) and s_coordinate < float(self.road.elevationProfile.elevations[i + 1].s)):
+                    s_z = float(self.road.elevationProfile.elevations[i].s)
+                    a = float(self.road.elevationProfile.elevations[i].a)
+                    b = float(self.road.elevationProfile.elevations[i].b)
+                    c = float(self.road.elevationProfile.elevations[i].c)
+                    d = float(self.road.elevationProfile.elevations[i].d)
+                    break
+                if (i == len(self.road.elevationProfile.elevations) - 2):
+                    s_z = float(self.road.elevationProfile.elevations[-1].s)
+                    a = float(self.road.elevationProfile.elevations[-1].a)
+                    b = float(self.road.elevationProfile.elevations[-1].b)
+                    c = float(self.road.elevationProfile.elevations[-1].c)
+                    d = float(self.road.elevationProfile.elevations[-1].d)
+                    break
 
 
-    def plot_ref_line(self):
+            if (self.geometry_nodes[geometry_index][0].tag == "paramPoly3"):
+                gradient_u = float(self.road.planView.geometrys[geometry_index].model.bU) + 2*float(self.road.planView.geometrys[geometry_index].model.cU) * (s_coordinate - s_xy) + 3*float(self.road.planView.geometrys[geometry_index].model.dU) * (s_coordinate - s_xy) ** 2
+                gradient_v = float(self.road.planView.geometrys[geometry_index].model.bV) + 2*float(self.road.planView.geometrys[geometry_index].model.cV) * (s_coordinate - s_xy) + 3*float(self.road.planView.geometrys[geometry_index].model.dV) * (s_coordinate - s_xy) ** 2
+
+                hdg_this_s = math.atan2(gradient_v, gradient_u) #angle in radian
+                # math.tan(3.1415926 / 2)
+                u = float(self.road.planView.geometrys[geometry_index].model.aU) + float(self.road.planView.geometrys[geometry_index].model.bU) * (s_coordinate - s_xy) + float(self.road.planView.geometrys[geometry_index].model.cU) * (s_coordinate - s_xy) ** 2 + float(self.road.planView.geometrys[geometry_index].model.dU) * (s_coordinate - s_xy) ** 3
+                v = float(self.road.planView.geometrys[geometry_index].model.aV) + float(self.road.planView.geometrys[geometry_index].model.bV) * (s_coordinate - s_xy) + float(self.road.planView.geometrys[geometry_index].model.cV) * (s_coordinate - s_xy) ** 2 + float(self.road.planView.geometrys[geometry_index].model.dV) * (s_coordinate - s_xy) ** 3
+                offset = float(a_laneOffset) + float(b_laneOffset) * (s_coordinate - s_laneOffset) + float(c_laneOffset) * (s_coordinate - s_laneOffset)**2 + float(d_laneOffset) * (s_coordinate - s_laneOffset)**3
+                u_center = u - offset * math.sin(hdg_this_s)
+                v_center = v + offset * math.cos(hdg_this_s)
+                width = float(width_a) + float(width_b) * s_Offset_1 + float(width_c) * s_Offset_1**2 + float(width_d) * s_Offset_1**3
+                u_minus1 = u_center + (offset+width) * math.sin(hdg_this_s)
+                v_minus1 = v_center - (offset+width) * math.cos(hdg_this_s)
+
+                coordinates_before_rotate = np.vstack((u, v)).T
+                middle_coordinates_before_rotate = np.vstack((u_center, v_center)).T
+                minus1_coordinates_before_rotate = np.vstack((u_minus1, v_minus1)).T
+
+                coordinates_after_rotate = rotate(coordinates_before_rotate, hdg, rotation_around=[
+                    float(self.road.planView.geometrys[geometry_index].model.aU),
+                    float(self.road.planView.geometrys[geometry_index].model.aV)])
+                middle_coordinates_after_rotate = rotate(middle_coordinates_before_rotate, hdg, rotation_around=[
+                    float(self.road.planView.geometrys[geometry_index].model.aU),
+                    float(self.road.planView.geometrys[geometry_index].model.aV)])
+                minus1_coordinates_after_rotate = rotate(minus1_coordinates_before_rotate, hdg, rotation_around=[
+                    float(self.road.planView.geometrys[geometry_index].model.aU),
+                    float(self.road.planView.geometrys[geometry_index].model.aV)])
+
+                coordinates_after_rotate_and_translation = coordinates_after_rotate + np.array([x, y])
+                middle_coordinates_after_rotate_and_translation = middle_coordinates_after_rotate + np.array([x, y])
+                minus1_coordinates_after_rotate_and_translation = minus1_coordinates_after_rotate + np.array([x, y])
+
+                x_coor = coordinates_after_rotate_and_translation[0]
+                y_coor = coordinates_after_rotate_and_translation[1]
+
+                middle_x_coor = middle_coordinates_after_rotate_and_translation[0]
+                middle_y_coor = middle_coordinates_after_rotate_and_translation[1]
+
+                minus1_x_coor = minus1_coordinates_after_rotate_and_translation[0]
+                minus1_y_coor = minus1_coordinates_after_rotate_and_translation[1]
+            z_coor = a + b * (s_coordinate - s_z) + c * (s_coordinate - s_z) ** 2 + d * (s_coordinate - s_z) ** 3
+            self.ref_line_coordinates.append([x_coor, y_coor, z_coor])
+            self.center_line_coordinates.append([middle_x_coor, middle_y_coor, z_coor])
+            self.minus1_coordiantes.append([minus1_x_coor, minus1_y_coor, z_coor])
+
+
+
+    def plot_2D(self):
+        time1 = time.time()
         if (len(self.s_coordinates) == 0):
-            self.setup_road_information()
+            self.parse_geometry_parameters()
+
+        if (len(self.ref_line_coordinates) == 0):
+            self.calculate_3d_coordinate()
 
         plt.figure()
-        # ax = plt.axes(projection="3d")
-        xyz = []
-        xyz_middle = []
-        xyz_minus1 = []
-        for s_item in self.s_coordinates:
-            x, y, z, middle_x, middle_y, minus1_x, minus1_y = self.get_3d_coordinate(s_item)
-            xyz.append([x, y, z])
-            xyz_middle.append([middle_x, middle_y, z])
-            xyz_minus1.append([minus1_x, minus1_y, z])
-        xyz = np.array(xyz)
-        xyz_middle = np.array(xyz_middle)
-        xyz_minus1 = np.array(xyz_minus1)
+        plt.plot(np.array(self.ref_line_coordinates)[:,0], np.array(self.ref_line_coordinates)[:,1], 'r',
+                 label="Reference line")
+        plt.plot(np.array(self.center_line_coordinates)[:, 0], np.array(self.center_line_coordinates)[:, 1], 'b')
+        plt.plot(np.array(self.minus1_coordiantes)[:, 0], np.array(self.minus1_coordiantes)[:, 1], 'b',
+                 label="Lane boundary")
 
-        # ax.plot3D(xyz[:, 0], xyz[:, 1], xyz[:, 2], 'green')
-        # ax.plot3D(xyz_middle[:, 0], xyz_middle[:, 1], xyz_middle[:, 2], 'blue')
-        # ax.plot3D(xyz_minus1[:, 0], xyz_minus1[:, 1], xyz_minus1[:, 2], 'red')
-        # axisEqual3D(ax)
-        # plt.plot(xyz[:, 0], xyz[:, 1], 'green')
-        plt.plot(xyz_middle[:, 0], xyz_middle[:, 1], 'blue')
-        plt.plot(xyz_minus1[:, 0], xyz_minus1[:, 1], 'red')
-        plt.title("Reference line of Road Section {0} \nTotal number of plan view geometries: {1}".format(self.id,
-                                                                                                   len(self.road.planView.geometrys)))
-        plt.xlabel("X", fontsize=15)
-        plt.ylabel("Y", fontsize=15)
         plt.axis('equal')
+        plt.legend()
+        plt.title("Driving lane coordinates")
+        time2 = time.time()
+        print("Plot finished: Time used --- %s seconds ---" % (time2 - time1))
         plt.show()
+
