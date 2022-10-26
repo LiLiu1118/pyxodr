@@ -1,140 +1,48 @@
 
-def choose_width_parameters(road, s_coordinate):
-    for i in range(len(road.lanes.laneSections) - 1):
-        if (s_coordinate >= float(road.lanes.laneSections[i].s) and s_coordinate < float(
-                road.lanes.laneSections[i + 1].s)):
-            if (len(road.lanes.laneSections[i].lane_minus1.width_items) == 1):
-                s_Offset = s_coordinate - float(road.lanes.laneSections[i].s)
-                s_Offset_1 = s_coordinate - float(road.lanes.laneSections[i].s) - float(
-                    road.lanes.laneSections[i].lane_minus1.width_items[0].sOffset)
-                width_a = float(road.lanes.laneSections[i].lane_minus1.width_items[0].a)
-                width_b = float(road.lanes.laneSections[i].lane_minus1.width_items[0].b)
-                width_c = float(road.lanes.laneSections[i].lane_minus1.width_items[0].c)
-                width_d = float(road.lanes.laneSections[i].lane_minus1.width_items[0].d)
-                break
-            for j in range(len(road.lanes.laneSections[i].lane_minus1.width_items) - 1):
-                if (s_coordinate >= float(road.lanes.laneSections[i].s) + float(
-                        road.lanes.laneSections[i].lane_minus1.width_items[j].sOffset)
-                        and s_coordinate < float(road.lanes.laneSections[i].s) + float(
-                            road.lanes.laneSections[i].lane_minus1.width_items[j + 1].sOffset)):
-                    lanesections = float(road.lanes.laneSections[i].s)
+def choose_width_parameters(road, s_coordinate, lane_section_s):
+    f1 = list(filter(lambda x: x <= s_coordinate, lane_section_s))
+    index1 = len(f1) - 1
+    s_offset_list = [width_items.sOffset for width_items in road.lanes.laneSections[index1].lane_minus1.width_items]
+    f2 = list(filter(lambda x: road.lanes.laneSections[index1].s + x <= s_coordinate, s_offset_list))
+    index2 = len(f2) - 1
+    s_offset = s_coordinate - road.lanes.laneSections[index1].s - \
+        road.lanes.laneSections[index1].lane_minus1.width_items[index2].sOffset
+    width_a = road.lanes.laneSections[index1].lane_minus1.width_items[index2].a
+    width_b = road.lanes.laneSections[index1].lane_minus1.width_items[index2].b
+    width_c = road.lanes.laneSections[index1].lane_minus1.width_items[index2].c
+    width_d = road.lanes.laneSections[index1].lane_minus1.width_items[index2].d
+    return s_offset, width_a, width_b, width_c, width_d
 
-                    s_Offset = s_coordinate - float(road.lanes.laneSections[i].s)
-                    s_Offset_1 = s_coordinate - float(road.lanes.laneSections[i].s) - float(
-                        road.lanes.laneSections[i].lane_minus1.width_items[j].sOffset)
-                    width_a = float(road.lanes.laneSections[i].lane_minus1.width_items[j].a)
-                    width_b = float(road.lanes.laneSections[i].lane_minus1.width_items[j].b)
-                    width_c = float(road.lanes.laneSections[i].lane_minus1.width_items[j].c)
-                    width_d = float(road.lanes.laneSections[i].lane_minus1.width_items[j].d)
-                    break
+def choose_lane_offset_parameters(road, s_coordinate, laneoffset_s):
+    f = list(filter(lambda x: x <= s_coordinate, laneoffset_s))
+    index = len(f) - 1
+    s_lane_offset = road.lanes.laneOffsets[index].s
+    a_lane_offset = road.lanes.laneOffsets[index].a
+    b_lane_offset = road.lanes.laneOffsets[index].b
+    c_lane_offset = road.lanes.laneOffsets[index].c
+    d_lane_offset = road.lanes.laneOffsets[index].d
 
-                if (j == len(road.lanes.laneSections[i].lane_minus1.width_items) - 2):
-                    s_Offset = s_coordinate - float(road.lanes.laneSections[i].s)
-                    s_Offset_1 = s_coordinate - float(road.lanes.laneSections[i].s) - float(
-                        road.lanes.laneSections[i].lane_minus1.width_items[-1].sOffset)
-                    lanesections = float(road.lanes.laneSections[i].s)
-                    width_a = float(road.lanes.laneSections[i].lane_minus1.width_items[-1].a)
-                    width_b = float(road.lanes.laneSections[i].lane_minus1.width_items[-1].b)
-                    width_c = float(road.lanes.laneSections[i].lane_minus1.width_items[-1].c)
-                    width_d = float(road.lanes.laneSections[i].lane_minus1.width_items[-1].d)
-                    break
-            break
-        if (i == len(road.lanes.laneSections) - 2):
-            if (len(road.lanes.laneSections[-1].lane_minus1.width_items) == 1):
-                # lane_setion_s = float(self.road.lanes.laneSections[i].s)
-                s_Offset = s_coordinate - float(road.lanes.laneSections[-1].s)
-                s_Offset_1 = s_coordinate - float(road.lanes.laneSections[-1].s) - float(
-                    road.lanes.laneSections[-1].lane_minus1.width_items[0].sOffset)
-                lanesections = float(road.lanes.laneSections[i].s)
-                width_a = float(road.lanes.laneSections[-1].lane_minus1.width_items[0].a)
-                width_b = float(road.lanes.laneSections[-1].lane_minus1.width_items[0].b)
-                width_c = float(road.lanes.laneSections[-1].lane_minus1.width_items[0].c)
-                width_d = float(road.lanes.laneSections[-1].lane_minus1.width_items[0].d)
-                break
-            for j in range(len(road.lanes.laneSections[-1].lane_minus1.width_items) - 1):
-                if (s_coordinate >= float(road.lanes.laneSections[-1].s) + float(
-                        road.lanes.laneSections[-1].lane_minus1.width_items[j].sOffset)
-                        and s_coordinate < float(road.lanes.laneSections[-1].s) + float(
-                            road.lanes.laneSections[-1].lane_minus1.width_items[j + 1].sOffset)):
-                    # lane_setion_s = float(self.road.lanes.laneSections[i].s)
-                    s_Offset = s_coordinate - float(road.lanes.laneSections[-1].s)
-                    s_Offset_1 = s_coordinate - float(road.lanes.laneSections[-1].s) - float(
-                        road.lanes.laneSections[-1].lane_minus1.width_items[j].sOffset)
-                    lanesections = float(road.lanes.laneSections[i].s)
-                    width_a = float(road.lanes.laneSections[-1].lane_minus1.width_items[j].a)
-                    width_b = float(road.lanes.laneSections[-1].lane_minus1.width_items[j].b)
-                    width_c = float(road.lanes.laneSections[-1].lane_minus1.width_items[j].c)
-                    width_d = float(road.lanes.laneSections[-1].lane_minus1.width_items[j].d)
-                    break
-                if (j == len(road.lanes.laneSections[-1].lane_minus1.width_items) - 2):
-                    s_Offset = s_coordinate - float(road.lanes.laneSections[-1].s)
-                    s_Offset_1 = s_coordinate - float(road.lanes.laneSections[-1].s) - float(
-                        road.lanes.laneSections[-1].lane_minus1.width_items[-1].sOffset)
-                    lanesections = float(road.lanes.laneSections[i].s)
+    return s_lane_offset, a_lane_offset, b_lane_offset, c_lane_offset, d_lane_offset
 
-                    width_a = float(road.lanes.laneSections[-1].lane_minus1.width_items[-1].a)
-                    width_b = float(road.lanes.laneSections[-1].lane_minus1.width_items[-1].b)
-                    width_c = float(road.lanes.laneSections[-1].lane_minus1.width_items[-1].c)
-                    width_d = float(road.lanes.laneSections[-1].lane_minus1.width_items[-1].d)
-                    break
-            break
-    return s_Offset_1, width_a, width_b, width_c, width_d
+def choose_ref_line_parameters(road, s_coordinate, geometry_s):
+    f = list(filter(lambda x: x <= s_coordinate, geometry_s))
+    index = len(f) - 1
+    s_xy = road.planView.geometrys[index].s
+    x = road.planView.geometrys[index].x
+    y = road.planView.geometrys[index].y
+    hdg = road.planView.geometrys[index].hdg
+    length = road.planView.geometrys[index].length
+    geometry_index = index
 
-def choose_lane_offset_parameters(road, s_coordinate):
-    for i in range(len(road.lanes.laneOffsets) - 1):
-        if (s_coordinate >= float(road.lanes.laneOffsets[i].s) and s_coordinate < float(
-                road.lanes.laneOffsets[i + 1].s)):
-            s_laneOffset = float(road.lanes.laneOffsets[i].s)
-            a_laneOffset = float(road.lanes.laneOffsets[i].a)
-            b_laneOffset = float(road.lanes.laneOffsets[i].b)
-            c_laneOffset = float(road.lanes.laneOffsets[i].c)
-            d_laneOffset = float(road.lanes.laneOffsets[i].d)
-            break
-        if (i == len(road.lanes.laneOffsets) - 2):
-            s_laneOffset = float(road.lanes.laneOffsets[-1].s)
-            a_laneOffset = float(road.lanes.laneOffsets[-1].a)
-            b_laneOffset = float(road.lanes.laneOffsets[-1].b)
-            c_laneOffset = float(road.lanes.laneOffsets[-1].c)
-            d_laneOffset = float(road.lanes.laneOffsets[-1].d)
-            break
-    return s_laneOffset, a_laneOffset, b_laneOffset, c_laneOffset, d_laneOffset
-
-def choose_ref_line_parameters(road, s_coordinate):
-    for i in range(len(road.planView.geometrys) - 1):
-        if (s_coordinate >= float(road.planView.geometrys[i].s) and s_coordinate < float(
-                road.planView.geometrys[i + 1].s)):
-            s_xy = float(road.planView.geometrys[i].s)
-            x = float(road.planView.geometrys[i].x)
-            y = float(road.planView.geometrys[i].y)
-            hdg = float(road.planView.geometrys[i].hdg)
-            length = float(road.planView.geometrys[i].length)
-            geometry_index = i
-            break
-        if (i == len(road.planView.geometrys) - 2):
-            s_xy = float(road.planView.geometrys[-1].s)
-            x = float(road.planView.geometrys[-1].x)
-            y = float(road.planView.geometrys[-1].y)
-            hdg = float(road.planView.geometrys[-1].hdg)
-            length = float(road.planView.geometrys[-1].length)
-            geometry_index = -1
-            break
     return s_xy, x, y, hdg, length, geometry_index
 
-def choose_elevation_parameters(road, s_coordinate):
-    for i in range(len(road.elevationProfile.elevations) - 1):
-        if (s_coordinate >= float(road.elevationProfile.elevations[i].s) and s_coordinate < float(
-                road.elevationProfile.elevations[i + 1].s)):
-            s_z = float(road.elevationProfile.elevations[i].s)
-            a = float(road.elevationProfile.elevations[i].a)
-            b = float(road.elevationProfile.elevations[i].b)
-            c = float(road.elevationProfile.elevations[i].c)
-            d = float(road.elevationProfile.elevations[i].d)
-            break
-        if (i == len(road.elevationProfile.elevations) - 2):
-            s_z = float(road.elevationProfile.elevations[-1].s)
-            a = float(road.elevationProfile.elevations[-1].a)
-            b = float(road.elevationProfile.elevations[-1].b)
-            c = float(road.elevationProfile.elevations[-1].c)
-            d = float(road.elevationProfile.elevations[-1].d)
-            break
+def choose_elevation_parameters(road, s_coordinate, elevation_s):
+    f = list(filter(lambda x: x <= s_coordinate, elevation_s))
+    index = len(f) - 1
+    s_z = road.elevationProfile.elevations[index].s
+    a = road.elevationProfile.elevations[index].a
+    b = road.elevationProfile.elevations[index].b
+    c = road.elevationProfile.elevations[index].c
+    d = road.elevationProfile.elevations[index].d
+
     return s_z, a, b, c, d
