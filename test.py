@@ -22,6 +22,3 @@ time6 = time.time()
 print("All coordinates calculated: Time used --- %s seconds ---" % (time6 - time5))
 
 road_parser.plot_2D()
-
-
-
