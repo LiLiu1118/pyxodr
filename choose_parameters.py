@@ -1,16 +1,17 @@
 
-def choose_width_parameters(road, s_coordinate, lane_section_s):
-    f1 = list(filter(lambda x: x <= s_coordinate, lane_section_s))
-    index1 = len(f1) - 1
-    s_offset_list = [width_items.sOffset for width_items in road.lanes.laneSections[index1].lane_minus1.width_items]
+def choose_width_parameters(road, s_coordinate, index1, id):
+    # f1 = list(filter(lambda x: x <= s_coordinate, lane_section_s))
+    # index1 = len(f1) - 1
+    # print("how many id exist: ", len(list(road.lanes.laneSections[index1].lane_with_id.keys())))
+    s_offset_list = [width_items.sOffset for width_items in road.lanes.laneSections[index1].lane_with_id[id].width_items]
     f2 = list(filter(lambda x: road.lanes.laneSections[index1].s + x <= s_coordinate, s_offset_list))
     index2 = len(f2) - 1
     s_offset = s_coordinate - road.lanes.laneSections[index1].s - \
-        road.lanes.laneSections[index1].lane_minus1.width_items[index2].sOffset
-    width_a = road.lanes.laneSections[index1].lane_minus1.width_items[index2].a
-    width_b = road.lanes.laneSections[index1].lane_minus1.width_items[index2].b
-    width_c = road.lanes.laneSections[index1].lane_minus1.width_items[index2].c
-    width_d = road.lanes.laneSections[index1].lane_minus1.width_items[index2].d
+        road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].sOffset
+    width_a = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].a
+    width_b = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].b
+    width_c = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].c
+    width_d = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].d
     return s_offset, width_a, width_b, width_c, width_d
 
 def choose_lane_offset_parameters(road, s_coordinate, laneoffset_s):
