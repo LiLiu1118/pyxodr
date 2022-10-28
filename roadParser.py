@@ -30,6 +30,8 @@ class RoadParser:
         self.elevation_s = []
         self.u_lane = {"0": []}
         self.v_lane = {"0": []}
+        self.max_lane_id = 0
+        self.min_lane_id = 0
 
     def get_road_length(self):
 
@@ -101,6 +103,7 @@ class RoadParser:
             lane_offset = LaneOffset(s, a, b, c, d)
             lanes.laneOffsets.append(lane_offset)
 
+
         laneSection_nodes = self.road_node.findall('.//laneSection')
         for laneSection_node in laneSection_nodes:
             s = float(laneSection_node.get('s'))
@@ -109,6 +112,10 @@ class RoadParser:
             lanes_all_num_node = laneSection_node.findall('.//lane')
             for lane_all_num_node in lanes_all_num_node:
                 lane_id = lane_all_num_node.get("id")
+                if int(lane_id) > self.max_lane_id:
+                    self.max_lane_id = int(lane_id)
+                if int(lane_id) < self.min_lane_id:
+                    self.min_lane_id = int(lane_id)
                 lane = Lane(float(lane_id))
                 width_items_node = lane_all_num_node.findall('.//width')
                 for width_item_node in width_items_node:
@@ -198,12 +205,15 @@ class RoadParser:
             keys = list(map(int, keys))
             keys_negativ = [i for i in keys if i < 0]
             keys_positive = [i for i in keys if i > 0]
+
+            keys_positive = list(reversed(keys_positive))
             for id in keys_negativ:
                 s_offset, width_a, width_b, width_c, width_d = choose_width_parameters(self.road, s_coordinate, index_lanesection, str(id))
                 width = width_a + width_b * s_offset + width_c * s_offset ** 2 +\
                     width_d * s_offset ** 3
-                u_minus = self.u_lane[str(id + 1)][coor_index] + width * math.sin(hdg_this_s)
-                v_minus = self.v_lane[str(id + 1)][coor_index] - width * math.cos(hdg_this_s)
+
+                u_minus = self.u_lane[str(id + 1)][-1] + width * math.sin(hdg_this_s)
+                v_minus = self.v_lane[str(id + 1)][-1] - width * math.cos(hdg_this_s)
                 if str(id) not in self.u_lane:
                     self.u_lane[str(id)] = []
                     self.v_lane[str(id)] = []
@@ -221,7 +231,52 @@ class RoadParser:
                     self.minus_coordiantes[str(id)] = []
                 self.minus_coordiantes[str(id)].append([minus_x_coor, minus_y_coor, z_coor])
 
-            coor_index += 1
+            if self.min_lane_id < min(keys_negativ):
+                for i in range(self.min_lane_id, min(keys_negativ)):
+                    if str(i) not in self.u_lane:
+                        self.u_lane[str(i)] = []
+                        self.v_lane[str(i)] = []
+                    self.u_lane[str(i)].append(float('NaN'))
+                    self.v_lane[str(i)].append(float('NaN'))
+                    if str(i) not in self.minus_coordiantes:
+                        self.minus_coordiantes[str(i)] = []
+                    self.minus_coordiantes[str(i)].append([float('NaN'), float('NaN'), float('NaN')])
+
+
+            for id in keys_positive:
+                s_offset, width_a, width_b, width_c, width_d = choose_width_parameters(self.road, s_coordinate, index_lanesection, str(id))
+                width = width_a + width_b * s_offset + width_c * s_offset ** 2 +\
+                    width_d * s_offset ** 3
+
+                u_minus = self.u_lane[str(id - 1)][-1] - width * math.sin(hdg_this_s)
+                v_minus = self.v_lane[str(id - 1)][-1] + width * math.cos(hdg_this_s)
+                if str(id) not in self.u_lane:
+                    self.u_lane[str(id)] = []
+                    self.v_lane[str(id)] = []
+                self.u_lane[str(id)].append(u_minus)
+                self.v_lane[str(id)].append(v_minus)
+                minus_coordinates_before_rotate = [u_minus, v_minus]
+                minus_coordinates_after_rotate = rotate(minus_coordinates_before_rotate, hdg, rotation_around=[
+                    self.road.planView.geometrys[geometry_index].model.aU,
+                    self.road.planView.geometrys[geometry_index].model.aV])
+                minus_coordinates_after_rotate_and_translation = minus_coordinates_after_rotate + np.array([x, y])
+                minus_x_coor = minus_coordinates_after_rotate_and_translation[0]
+                minus_y_coor = minus_coordinates_after_rotate_and_translation[1]
+
+                if str(id) not in self.minus_coordiantes:
+                    self.minus_coordiantes[str(id)] = []
+                self.minus_coordiantes[str(id)].append([minus_x_coor, minus_y_coor, z_coor])
+
+            if self.max_lane_id > max(keys_positive):
+                for i in range(max(keys_positive)+1, self.max_lane_id+1):
+                    if str(i) not in self.u_lane:
+                        self.u_lane[str(i)] = []
+                        self.v_lane[str(i)] = []
+                    self.u_lane[str(i)].append(float('NaN'))
+                    self.v_lane[str(i)].append(float('NaN'))
+                    if str(i) not in self.minus_coordiantes:
+                        self.minus_coordiantes[str(i)] = []
+                    self.minus_coordiantes[str(i)].append([float('NaN'), float('NaN'), float('NaN')])
 
     def plot_2D(self):
         time1 = time.time()
@@ -232,19 +287,20 @@ class RoadParser:
             self.calculate_3d_coordinate()
 
         plt.figure()
-        plt.plot(np.array(self.ref_line_coordinates)[:, 0], np.array(self.ref_line_coordinates)[:, 1], 'r',
-                 linewidth=0.6, label="Reference line")
-        plt.plot(np.array(self.center_line_coordinates)[:, 0], np.array(self.center_line_coordinates)[:, 1], 'b',
-                 linewidth=0.6)
-        plt.plot(np.array(self.minus_coordiantes['-1'])[:,0], np.array(self.minus_coordiantes['-1'])[:,1], 'b',
-                 linewidth=0.6, label="Lane boundary")
-        plt.plot(np.array(self.minus_coordiantes['-2'])[:, 0], np.array(self.minus_coordiantes['-2'])[:, 1], 'g',
-                 linewidth=0.6, label="Lane boundary")
-        plt.plot(np.array(self.minus_coordiantes['-3'])[:, 0], np.array(self.minus_coordiantes['-3'])[:, 1],
-                 linewidth=0.6, label="Lane boundary")
+        plt.plot(np.array(self.ref_line_coordinates)[:, 0], np.array(self.ref_line_coordinates)[:, 1], 'r-.',
+                 linewidth=1, label="Reference line")
+
+
+        plt.plot(np.array(self.center_line_coordinates)[:, 0], np.array(self.center_line_coordinates)[:, 1],
+                 linewidth=0.8, label="Center line")
+        for i in self.minus_coordiantes.keys():
+
+            plt.plot(np.array(self.minus_coordiantes[i])[:, 0], np.array(self.minus_coordiantes[i])[:, 1],
+                     linewidth=0.8, label= "Lane " + i + " boundary")
+
         plt.axis('equal')
         plt.legend()
-        plt.title("Driving lane coordinates")
+        plt.title("Road lanes visualization")
         time2 = time.time()
         print("Plot finished: Time used --- %s seconds ---" % (time2 - time1))
         plt.show()
