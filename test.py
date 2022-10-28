@@ -20,9 +20,5 @@ time5 = time.time()
 road_parser.calculate_3d_coordinate()
 time6 = time.time()
 print("All coordinates calculated: Time used --- %s seconds ---" % (time6 - time5))
-#
-# print(road_parser.minus_coordiantes['-1'][0] )
-# print(road_parser.minus_coordiantes['-2'][0] )
-# print(road_parser.minus_coordiantes['-3'][0] )
 
 road_parser.plot_2D()
