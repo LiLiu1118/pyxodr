@@ -1,4 +1,3 @@
-
 class PlanView:
 
     def __init__(self):
@@ -25,3 +24,8 @@ class ParamPoly3():
         self.bV = bV
         self.cV = cV
         self.dV = dV
+
+
+class Line():
+    def __init__(self):
+        self.type = "line"
