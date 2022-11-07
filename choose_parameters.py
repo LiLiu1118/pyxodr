@@ -1,21 +1,19 @@
-
-def choose_width_parameters(road, s_coordinate, index1, id):
-    # f1 = list(filter(lambda x: x <= s_coordinate, lane_section_s))
-    # index1 = len(f1) - 1
-    # print("how many id exist: ", len(list(road.lanes.laneSections[index1].lane_with_id.keys())))
-    s_offset_list = [width_items.sOffset for width_items in road.lanes.laneSections[index1].lane_with_id[id].width_items]
+def choose_width_parameters(road, s_coordinate, index1, lane_id):
+    s_offset_list = [width_items.sOffset for width_items in
+                     road.lanes.laneSections[index1].lane_with_id[lane_id].width_items]
     f2 = list(filter(lambda x: road.lanes.laneSections[index1].s + x <= s_coordinate, s_offset_list))
     index2 = len(f2) - 1
-    s_offset = s_coordinate - road.lanes.laneSections[index1].s - \
-        road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].sOffset
-    width_a = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].a
-    width_b = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].b
-    width_c = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].c
-    width_d = road.lanes.laneSections[index1].lane_with_id[id].width_items[index2].d
+    s_offset = s_coordinate - road.lanes.laneSections[index1].s -\
+        road.lanes.laneSections[index1].lane_with_id[lane_id].width_items[index2].sOffset
+    width_a = road.lanes.laneSections[index1].lane_with_id[lane_id].width_items[index2].a
+    width_b = road.lanes.laneSections[index1].lane_with_id[lane_id].width_items[index2].b
+    width_c = road.lanes.laneSections[index1].lane_with_id[lane_id].width_items[index2].c
+    width_d = road.lanes.laneSections[index1].lane_with_id[lane_id].width_items[index2].d
     return s_offset, width_a, width_b, width_c, width_d
 
-def choose_lane_offset_parameters(road, s_coordinate, laneoffset_s):
-    f = list(filter(lambda x: x <= s_coordinate, laneoffset_s))
+
+def choose_lane_offset_parameters(road, s_coordinate, lane_offset_s):
+    f = list(filter(lambda x: x <= s_coordinate, lane_offset_s))
     index = len(f) - 1
     s_lane_offset = road.lanes.laneOffsets[index].s
     a_lane_offset = road.lanes.laneOffsets[index].a
@@ -25,8 +23,9 @@ def choose_lane_offset_parameters(road, s_coordinate, laneoffset_s):
 
     return s_lane_offset, a_lane_offset, b_lane_offset, c_lane_offset, d_lane_offset
 
+
 def choose_ref_line_parameters(road, s_coordinate, geometry_s):
-    f = list(filter(lambda x: x <= s_coordinate, geometry_s))
+    f = list(filter(lambda a: a <= s_coordinate, geometry_s))
     index = len(f) - 1
     s_xy = road.planView.geometrys[index].s
     x = road.planView.geometrys[index].x
@@ -36,6 +35,7 @@ def choose_ref_line_parameters(road, s_coordinate, geometry_s):
     geometry_index = index
 
     return s_xy, x, y, hdg, length, geometry_index
+
 
 def choose_elevation_parameters(road, s_coordinate, elevation_s):
     f = list(filter(lambda x: x <= s_coordinate, elevation_s))
