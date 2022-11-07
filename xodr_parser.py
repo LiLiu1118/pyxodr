@@ -34,8 +34,8 @@ class XODRParser:
         point = Point(gps[0], gps[1])
         for road in roads:
             road_parser = RoadParser(road)
-            road_parser.parse_geometry_parameters()
-            road_parser.calculate_3d_coordinate()
+            road_parser.parse_lanes_parameters()
+            road_parser.calculate_lanes_coordinate()
             keys_positive = list(np.arange(1, road_parser.max_lane_id+1))
             keys_negative = list(np.arange(road_parser.min_lane_id, 0))
             keys_positive.reverse()
@@ -43,22 +43,22 @@ class XODRParser:
             left_boundary = []
 
             if len(keys_negative) > 0:
-                for i in range(len(road_parser.minus_coordiantes[str(road_parser.min_lane_id)])):
+                for i in range(len(road_parser.lanes_coordinates[str(road_parser.min_lane_id)])):
                     flag_right = 0
                     for j in keys_negative:
-                        if not math.isnan(road_parser.minus_coordiantes[str(j)][i][0]):
-                            right_boundary.append(road_parser.minus_coordiantes[str(j)][i])
+                        if not math.isnan(road_parser.lanes_coordinates[str(j)][i][0]):
+                            right_boundary.append(road_parser.lanes_coordinates[str(j)][i])
                             flag_right = 1
                             break
                     if flag_right == 0:
                         right_boundary.append(road_parser.center_line_coordinates[i])
 
             if len(keys_positive) > 0:
-                for i in range(len(road_parser.minus_coordiantes[str(road_parser.max_lane_id)])):
+                for i in range(len(road_parser.lanes_coordinates[str(road_parser.max_lane_id)])):
                     flag_left = 0
                     for j in keys_positive:
-                        if not math.isnan(road_parser.minus_coordiantes[str(j)][i][0]):
-                            left_boundary.append(road_parser.minus_coordiantes[str(j)][i])
+                        if not math.isnan(road_parser.lanes_coordinates[str(j)][i][0]):
+                            left_boundary.append(road_parser.lanes_coordinates[str(j)][i])
                             flag_left = 1
                             break
                     if flag_left == 0:
@@ -85,7 +85,7 @@ class XODRParser:
 
     # The parameters of road_parser in function below are expected to be
     # already calculated in function find_road_from_gps
-    def calculate_projection_geometry(self, road_parser, gps, lane, distance):
+    def calculate_projection_geometry(road_parser, gps, lane, distance):
         ref_line = np.array(road_parser.ref_line_coordinates)[:,0:2]
         # print(center_line[:,0:2]-gps)
         index = np.argmin(np.linalg.norm(ref_line-gps, axis=1))
