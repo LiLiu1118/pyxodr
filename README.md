@@ -11,7 +11,7 @@ For example, the OpenDRIVE format defines a crosswalk using the following XML fr
 ![ASAM crosswalk](https://github.com/LiLiu1118/pyxodr/blob/develop/ASAM_official_files/crosswalk.png)
 
 ```xml
-<objects>
+ <objects>
             <object type="crosswalk" id="10" s="10.0" t="0.0" zOffset="0.0"
             orientation="none" length="10.0" width="7.0" hdg="0.0" pitch="0.0" roll="0.0">
             <outlines>
@@ -36,7 +36,7 @@ For example, the OpenDRIVE format defines a crosswalk using the following XML fr
             </markings>
             </object>
         </objects>
-.```
+```
 
 ## Installation
 
