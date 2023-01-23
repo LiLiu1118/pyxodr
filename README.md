@@ -4,13 +4,15 @@ Pyxodr is a Python library for dealing with OpenDRIVE files.
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+As a work during the author's internship, the installation as a python library is currently not supported. It may become possible after obtaining permission, and the possible installation command in the future is as follows:
 
 ```bash
 pip install pyxodr
 ```
 
 ## Usage
+
+This parser provides a variety of functions, the most basic methods of use are as follows
 
 ```python
 from xodr_parser import XODRParser
@@ -29,10 +31,10 @@ road.calculate_ref_line_params()
 road.plot_ref_line()
 ```
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+For further functions: [Click here to read the documentation](https://github.com/LiLiu1118/pyxodr/blob/master/documentation/XODRParser_Documentation.pdf)
 
-Please make sure to update tests as appropriate.
+## Example results
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
