@@ -4,7 +4,7 @@ pyxodr is a Python library for dealing with OpenDRIVE files, including the parsi
 
 ## The OpenDRIVE format
 
-![ASAM logo](https://github.com/LiLiu1118/pyxodr/tree/master/ASAM_official_files)
+![ASAM logo](https://github.com/LiLiu1118/pyxodr/blob/develop/ASAM_official_files/association-for-standardization-of-automation-and-measuring-systems-asam-logo-vector.png)
 
 The ASAM OpenDRIVE format provides a common base for describing road networks with extensible markup language (XML) syntax, using the file extension xodr. The data that is stored in an ASAM OpenDRIVE file describes the geometry of roads, lanes and objects, such as roadmarks on the road, as well as features along the roads, like signals. The road networks that are described in the ASAM OpenDRIVE file can either be synthetic or based on real data. (Intercepted from ASAM official website). For more information: [Click here go to the ASAM OpenDRIVE official documentation](https://releases.asam.net/OpenDRIVE/1.6.0/ASAM_OpenDRIVE_BS_V1-6-0.html#_roads)
 
