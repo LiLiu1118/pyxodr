@@ -35,11 +35,11 @@ For further functions: [Click here to read the documentation](https://github.com
 
 ## Example results
 
-![road visulization](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/road_visulization.png =250x)
+![road visulization](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/road_visulization.png)
 
-![intersection detail](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/intersection_detail.png =250x)
+![intersection detail](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/intersection_detail.png)
 
-![object visulization](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/object_visulization.png =250x)
+![object visulization](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/object_visulization.png)
 
 
 ## License
