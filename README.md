@@ -1,6 +1,6 @@
 # pyxodr
 
-Pyxodr is a Python library for dealing with OpenDRIVE files.
+pyxodr is a Python library for dealing with OpenDRIVE files.
 
 ## Installation
 
@@ -34,6 +34,12 @@ road.plot_ref_line()
 For further functions: [Click here to read the documentation](https://github.com/LiLiu1118/pyxodr/blob/master/documentation/XODRParser_Documentation.pdf)
 
 ## Example results
+
+![road visulization](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/road_visulization.png)
+
+![intersection detail](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/intersection_detail.png)
+
+![object visulization](https://github.com/LiLiu1118/pyxodr/blob/develop/example_results/object_visulization.png)
 
 
 ## License
